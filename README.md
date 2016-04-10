@@ -4,7 +4,7 @@ This repo contains Selenium tests for the codebender website.  The tests are
 written in Python 2, and utilize pytest as a testing framework and Selenium
 for browser automation.
 
-## Running Tests
+### Running Tests
 
 Tests are run by invoking `tox`. Run `tox --help` to see all the
 Codebender-specific arguments that can be passed to `py.test`.
@@ -39,7 +39,7 @@ $ docker run -e CODEBENDER_SELENIUM_HUB_URL=http://johndoe:12345678-1234-1234-12
              tox -- --url http://192.168.1.2:8080 --source bachelor
 ```
 
-### Running Tests Manually
+#### Running Tests Manually
 
 The recommended way of running tests is with Docker. If you would like to
 manually provision your machine to be able to run tests, you can use the
