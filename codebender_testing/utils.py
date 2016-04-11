@@ -408,11 +408,20 @@ class CodebenderSeleniumBot(object):
         navigate to the user's homepage."""
         self.open('/')
         try:
-            created_project = self.get_element(By.LINK_TEXT, project_name)
-            delete_button_li = created_project.find_element_by_xpath('..')
-            delete_button = delete_button_li.find_element_by_css_selector('.delete-sketch')
+            created_project = self.driver.find_element_by_link_text(project_name)
+            delete_button_li = created_project.find_element_by_xpath('../..')
+            delete_button = delete_button_li.find_element_by_css_selector('.sketch-block-control.sketch-block-delete')
             delete_button.click()
-            popup_delete_button = self.get_element(By.ID, 'deleteProjectButton')
+       
+	    WebDriverWait(self.driver, VERIFY_TIMEOUT).until(
+                 expected_conditions.invisibility_of_element_located(
+                     (By.ID, "home-delete-sketch-modal")
+                 ) 
+	    )
+            
+	    popup_dialog = self.driver.find_element_by_id("home-delete-sketch-modal")
+	
+            popup_delete_button = popup_dialog.find_element_by_css_selector('.modal-footer.delete-sketch-modal-footer').find_element_by_css_selector('.btn.delete-sketch-modal-button')
             popup_delete_button.click()
         except:
             pass
@@ -726,27 +735,35 @@ class CodebenderSeleniumBot(object):
             )
         return self.driver.execute_script(script)
 
-    def create_sketch(self, name):
+    def create_sketch(self, name, description):
         """Creates a sketch with a given name"""
         createSketchBtn = self.driver.find_element_by_id('create_sketch_btn')
         createSketchBtn.click()
-        sketchHeading = self.get_element(By.ID, 'editor_heading_project_name')
-        sketchHeading.click()
-        renameInput = '#editor_heading_project_name input'
-        headingInput = self.get_element(By.CSS_SELECTOR, renameInput)
-        headingInput.clear()
-        headingInput.send_keys(name)
-        headingInput.send_keys(Keys.ENTER)
-        WebDriverWait(self.driver, VERIFY_TIMEOUT).until(
-            expected_conditions.invisibility_of_element_located(
-                (By.CSS_SELECTOR, "#editor_heading_project_working")
-            )
-        )
-        WebDriverWait(self.driver, VERIFY_TIMEOUT).until(
-            expected_conditions.text_to_be_present_in_element(
-                (By.ID, "operation_output"), 'Name successfully changed!'
-            )
-        )
+	time.sleep(5)
+        
+	#WebDriverWait(self.driver, VERIFY_TIMEOUT).until(
+            #expected_conditions.invisibility_of_element_located(
+                #(By.ID, "create-sketch-modal")
+            #)
+        #)
+
+	popup_dialog = self.driver.find_element_by_id('create-sketch-modal')
+        projectNameField = popup_dialog.find_element_by_id('create-sketch-name')
+	projectNameField.clear()
+	projectNameField.send_keys(name)
+	projectNameField.send_keys(Keys.ENTER)
+
+	projectDescriptionArea = self.driver.find_element_by_id('create-sketch-modal-sort-description')
+	projectDescriptionArea.clear()
+	projectDescriptionArea.send_keys(description)
+	projectDescriptionArea.send_keys(Keys.ENTER)
+
+        privateRadioButton = self.driver.find_elements_by_css_selector("input[type='radio'][value='private']")
+	privateRadioButton[1].click()
+
+	test = self.driver.find_element_by_id('create-sketch-modal-action-button')
+        test.click()
+	time.sleep(3)
 
     def check_iframe(self):
         """Returns the contents of an iframe [project_name, user_name, sketch_contents]"""
